@@ -46,7 +46,11 @@ int main(int argc, char *argv[]) {
       exit(1);
     }
 
+    // close the read end as it is unused
     close(fd[READ_END]);
+
+    // reads the contents of the file into the buffer, processing final bytes if needed
+    // then writes the buffer into the pipe
 
     while (inFile.read(buffer, sizeof(buffer)) || inFile.gcount() > 0) {
       ssize_t n = inFile.gcount();
@@ -64,14 +68,16 @@ int main(int argc, char *argv[]) {
       exit(1);
     }
 
+    // close the write end as it is unused
     close(fd[WRITE_END]);
     ssize_t n;
 
+    // reads from the pipe and writes contents to the destination file
     while ((n = read(fd[READ_END], buffer, sizeof(buffer))) > 0) {
       outFile.write(buffer, n);
     }
 
-    std::cout << "File successfully copied from " << src << "  to " << dst << std::endl;
+    std::cout << "File successfully copied from " << src << " to " << dst << std::endl;
 
     outFile.close();
     close(fd[READ_END]);
